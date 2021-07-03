@@ -1,4 +1,5 @@
-
+require_relative "kdwatch/version"
+require 'bundler'
 
 Bundler.require
 

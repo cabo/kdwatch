@@ -1,28 +1,24 @@
-#!/bin/bash
-LANG=en_US.utf-8
-export LANG
-LC_CTYPE=en_US.UTF-8
-export LC_CTYPE
+#!/usr/bin/env ruby
+ENV["LANG"]="en_US.utf-8"
+ENV["LC_CTYPE"]="en_US.utf-8"
+ENV["KRAMDOWN_PERSISTENT"]="yes"
 
-KRAMDOWN_PERSISTENT=yes
+if ARGV == []
+   ARGV.replace Dir["draft-*.md"]
+end
 
-case $# in
-    0) set draft-*.md
-esac
+if ARGV.size != 1
+   warn "** Usage: $0 [foo.md]"
+   exit 1
+end
 
-case $# in
-    1) ;;
-    *) echo Usage: $0 [foo.md]
-esac
+ENV["KD_WATCH_SRC"] = ARGV[0]
 
-KD_WATCH_SRC=$1
-export KD_WATCH_SRC
-
-cat >.config.ru <<HERE
+File.write(".config.ru", <<HERE)
 require 'rack-livereload'
 use Rack::LiveReload, min_delay: 500, source: :vendored, no_swf: true
-require_relative 'app'
+require 'kdwatch-app.rb'
 run Sinatra::Application
 HERE
 
-bundle exec rackup -E production -s thin -p 7991 .config.ru
+exec("rackup -E production -s thin -p 7991 .config.ru")
