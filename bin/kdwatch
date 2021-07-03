@@ -1,0 +1,28 @@
+#!/bin/bash
+LANG=en_US.utf-8
+export LANG
+LC_CTYPE=en_US.UTF-8
+export LC_CTYPE
+
+KRAMDOWN_PERSISTENT=yes
+
+case $# in
+    0) set draft-*.md
+esac
+
+case $# in
+    1) ;;
+    *) echo Usage: $0 [foo.md]
+esac
+
+KD_WATCH_SRC=$1
+export KD_WATCH_SRC
+
+cat >.config.ru <<HERE
+require 'rack-livereload'
+use Rack::LiveReload, min_delay: 500, source: :vendored, no_swf: true
+require_relative 'app'
+run Sinatra::Application
+HERE
+
+bundle exec rackup -E production -s thin -p 7991 .config.ru
