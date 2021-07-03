@@ -5,10 +5,13 @@ ENV["KRAMDOWN_PERSISTENT"]="yes"
 
 if ARGV == []
    ARGV.replace Dir["draft-*.md"]
+   warn_replace = 1
 end
 
 if ARGV.size != 1
-   warn "** Usage: $0 [foo.md]"
+   warn "** Usage: #$0 [draft-foo.md]"
+   warn "**   More than one draft file found #{ARGV.inspect}"   if warn_replace
+   warn "**   Please select one for watching."   if warn_replace
    exit 1
 end
 

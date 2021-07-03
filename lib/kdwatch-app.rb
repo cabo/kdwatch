@@ -23,7 +23,7 @@ get "/" do
   sfc = File.stat(sfn).ctime
   dfc = File.stat(dfn).ctime rescue Time.at(0)
   if sfc > dfc
-    warn "Recompile..."
+    warn "Rebuilding..."
     system("time kdrfc -3h --no-txt #{sfn}")
     warn "...done"
   end
