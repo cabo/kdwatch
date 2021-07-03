@@ -1,7 +1,16 @@
 require_relative "kdwatch/version"
 require 'bundler'
 
-Bundler.require
+# Bundler.require
+require "bundler"
+require "thin"
+# require "guard-livereload"
+require "rack-livereload"
+require "guard"
+require "sinatra"
+require "kramdown-rfc2629"
+require "net/http/persistent"
+
 
 sfn = ENV["KD_WATCH_SRC"]
 fail "No source given" unless sfn
@@ -36,7 +45,7 @@ end
 GF
 
 rd, _wr = IO.pipe
-spawn("bundle exec guard -G .Guardfile", in: rd)
+spawn("guard -G .Guardfile", in: rd)
 
 # wrong: puts settings.port
 
