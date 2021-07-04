@@ -4,14 +4,21 @@ ENV["LC_CTYPE"]="en_US.utf-8"
 ENV["KRAMDOWN_PERSISTENT"]="yes"
 
 if ARGV == []
-   ARGV.replace Dir["draft-*.md"]
+   ARGV.replace Dir.glob(["draft-*.md", "*.mkd"])
    warn_replace = 1
 end
 
 if ARGV.size != 1
-   warn "** Usage: #$0 [draft-foo.md]"
-   warn "**   More than one draft file found #{ARGV.inspect}"   if warn_replace
-   warn "**   Please select one for watching."   if warn_replace
+   warn "** Usage: #$0 [-r] [draft-foo.md]"
+   warn "**        #$0 -e"
+   if warn_replace
+     if ARGV.size > 1
+       warn "**   More than one draft file found #{ARGV.inspect}"
+       warn "**   Please select one for watching."
+     else
+       warn "**   No draft file draft-*.md or *.mkd found."
+     end
+   end
    exit 1
 end
 
