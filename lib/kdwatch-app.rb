@@ -45,7 +45,7 @@ end
 GF
 
 rd, _wr = IO.pipe
-spawn("guard -G .Guardfile", in: rd)
+spawn("guard -G .Guardfile", in: rd, close_others: true)
 
 # wrong: puts settings.port
 
