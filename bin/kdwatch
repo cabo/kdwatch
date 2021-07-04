@@ -3,6 +3,39 @@ ENV["LANG"]="en_US.utf-8"
 ENV["LC_CTYPE"]="en_US.utf-8"
 ENV["KRAMDOWN_PERSISTENT"]="yes"
 
+KDWATCH_PORT = 7991             # currently unregistered...
+
+## -r: Kill any previous kdwatch and continue ("restart")
+## -e: Kill any previous kdwatch and exit
+if ARGV[0] == "-e" || ARGV[0] == "-r"
+  require 'open3'
+
+  status = 1
+  flag = ARGV.shift
+
+  stdout_str, stderr_str, s = Open3.capture3("lsof -ti :#{KDWATCH_PORT} -s TCP:LISTEN")
+  pids = if s.success? && stdout_str =~ /\A[0-9\s]*\z/ && stderr_str
+           stdout_str.split
+         else
+           text = stdout_str + stderr_str
+           warn "** lsof, status #{s}, says: #{text}" if text != "" || s.exitstatus != 1
+           []
+         end
+  if pids == []
+    warn "** Nothing listening on kdwatch port" unless flag == "-r"
+  elsif pids.size != 1
+    warn "** More than one process listening on kdwatch port, nothing done"
+  else
+    begin
+      status = Process.kill(2, Integer(pids[0])) - 1 # should be 1 for 1 kill, exit 0 then
+    rescue Errno => e
+      warn "** #{pids[0]}: #{e.inspect}"
+    end
+  end
+  exit(status) if flag == "-e"
+end
+
+## Find an .mkd or a draft-*.md (excluding README.md and such)
 if ARGV == []
    ARGV.replace Dir.glob(["draft-*.md", "*.mkd"])
    warn_replace = 1
@@ -31,4 +64,4 @@ require 'kdwatch-app.rb'
 run Sinatra::Application
 HERE
 
-exec("rackup -E production -s thin -p 7991 .config.ru")
+exec("rackup -E production -s thin -p #{KDWATCH_PORT} .config.ru")
