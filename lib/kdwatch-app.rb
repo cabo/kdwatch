@@ -11,8 +11,10 @@ require "sinatra"
 require "kramdown-rfc2629"
 require "net/http/persistent"
 
+host = ENV["KDWATCH_HOST"]
+port = ENV["KDWATCH_PORT"]
 
-sfn = ENV["KD_WATCH_SRC"]
+sfn = ENV["KDWATCH_SRC"]
 fail "No source given" unless sfn
 
 dfn = File.join(File.dirname(sfn), "#{File.basename(sfn, ".*")}.html")
@@ -49,7 +51,10 @@ spawn("guard -G .Guardfile", in: rd, close_others: true)
 
 # wrong: puts settings.port
 
-url = "http://127.0.0.1:7991"
+host = "::1" if host == "::" # work around macOS peculiarity
+host = "[#{host}]" if host =~ /:/
+
+url = "http://#{host}:#{port}"
 
 spawn("sleep 5; open #{url} || xdg-open #{url} || echo @@@ Please open #{url}")
 

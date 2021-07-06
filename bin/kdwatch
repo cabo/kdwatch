@@ -3,17 +3,77 @@ ENV["LANG"]="en_US.utf-8"
 ENV["LC_CTYPE"]="en_US.utf-8"
 ENV["KRAMDOWN_PERSISTENT"]="yes"
 
+
+require 'optparse'
+require 'ostruct'
+
+require_relative "../lib/kdwatch/version"
+
 KDWATCH_PORT = 7991             # currently unregistered...
+
+options = OpenStruct.new
+
+op = OptionParser.new do |opts|
+  opts.banner = <<BANNER
+Usage: kdwatch [options] draft-foo.md|.mkd|.xml
+Version: #{Kdwatch::VERSION}
+BANNER
+  opts.on("-V", "--version", "Show version and exit") do |v|
+    puts "kdwatch #{Kdwatch::Version}"
+    exit
+  end
+  opts.on("-H", "--help", "Show option summary and exit") do |v|
+    puts opts
+    exit
+  end
+  opts.on("-e", "--[no-]end", "End existing server and exit")
+  opts.on("-r", "--[no-]replace", "Replace existing server")
+  opts.on("-oNAME", "--host=NAME", String, "Server host (127.0.0.1)")
+  opts.on("-i", "--internet", 'Abbr. "on the Internet" (host = "::")')
+  opts.on("-pNUM", "--port=NUM", Integer, "Port number (#{KDWATCH_PORT})")
+  opts.on("-[1-6]", "--[1-6]", Integer, "Abbr. port number (#{KDWATCH_PORT/10}x), must be last")
+end
+begin
+  op.parse!(into: options)
+rescue OptionParser::InvalidOption => e
+  warn "** #{e}"
+  warn op
+  exit 1
+end
+
+if options.internet
+  warn "** overriding host #{options.host} with ::" if options.host
+  options.host = "::"
+else
+  options.host ||= "127.0.0.1"
+end
+if short_port = options[""]
+  port = short_port + KDWATCH_PORT/10*10
+  warn "** overriding port #{options.port} with #{port}" if options.port
+  options.port = port
+else
+  options.port ||= KDWATCH_PORT
+end
+
+# p options
 
 ## -r: Kill any previous kdwatch and continue ("restart")
 ## -e: Kill any previous kdwatch and exit
-if ARGV[0] == "-e" || ARGV[0] == "-r"
+if options.replace || options.end
   require 'open3'
 
   status = 1
-  flag = ARGV.shift
 
-  stdout_str, stderr_str, s = Open3.capture3("lsof -ti :#{KDWATCH_PORT} -s TCP:LISTEN")
+  lsof_host = case options.host
+              when "::", "0.0.0.0"
+                ""              # can't do more specific with lsof; hope for the best
+              when /:/
+                "@'[#{options.host}]'"
+              else
+                "@'#{options.host}'"
+              end
+
+  stdout_str, stderr_str, s = Open3.capture3("lsof -ti #{lsof_host}:#{options.port} -s TCP:LISTEN")
   pids = if s.success? && stdout_str =~ /\A[0-9\s]*\z/ && stderr_str
            stdout_str.split
          else
@@ -22,7 +82,7 @@ if ARGV[0] == "-e" || ARGV[0] == "-r"
            []
          end
   if pids == []
-    warn "** Nothing listening on kdwatch port" unless flag == "-r"
+    warn "** Nothing listening on kdwatch port" unless options.replace
   elsif pids.size != 1
     warn "** More than one process listening on kdwatch port, nothing done"
   else
@@ -32,7 +92,7 @@ if ARGV[0] == "-e" || ARGV[0] == "-r"
       warn "** #{pids[0]}: #{e.inspect}"
     end
   end
-  exit(status) if flag == "-e"
+  exit(status) if options.end
 end
 
 ## Find an .mkd or a draft-*.md (excluding README.md and such)
@@ -42,8 +102,7 @@ if ARGV == []
 end
 
 if ARGV.size != 1
-   warn "** Usage: #$0 [-r] [draft-foo.md]"
-   warn "**        #$0 -e"
+   warn op
    if warn_replace
      if ARGV.size > 1
        warn "**   More than one draft file found #{ARGV.inspect}"
@@ -55,7 +114,9 @@ if ARGV.size != 1
    exit 1
 end
 
-ENV["KD_WATCH_SRC"] = ARGV[0]
+ENV["KDWATCH_SRC"] = ARGV[0]
+ENV["KDWATCH_HOST"] = options.host
+ENV["KDWATCH_PORT"] = options.port.to_s
 
 File.write(".config.ru", <<HERE)
 require 'rack-livereload'
@@ -64,4 +125,4 @@ require 'kdwatch-app.rb'
 run Sinatra::Application
 HERE
 
-exec("rackup -E production -s thin -p #{KDWATCH_PORT} .config.ru")
+exec("rackup -E production -s thin -o #{options.host} -p #{options.port} .config.ru")
