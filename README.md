@@ -93,7 +93,7 @@ that is needed.
 
 If you try it, please send feedback (and, in case of an error, *all* output on the kdwatch terminal window, please).
 
-Bug reports and pull requests are welcome on GitHub at
+Bug reports, pull requests, or simple suggestions are welcome on GitHub at
 <https://github.com/cabo/kdwatch>, e.g., simply [submit an
 issue][issues] or send me [mail][].
 
