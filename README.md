@@ -14,8 +14,9 @@ $ gem install kdwatch
 
 * For some reason, the initial `gem install` takes a couple of minutes,
   during the first few of which it may seem nothing happens.
-* If the above `pip3` doesn't work: in a pinch, kdrfc will use the IETF
-  web service for xml2rfc processing (but that may be a bit slower).
+* If the above `pip3` doesn't work, no problem: in a pinch, kdrfc will
+  use the IETF web service for xml2rfc processing (but that may be a
+  bit slower).
 * Depending on system configuration, add `sudo` (but don't if it isn't
   actually needed).
 
@@ -29,7 +30,7 @@ $ gem install kdwatch
 $ kdwatch
 ```
 
-After about 10 seconds, a browser will open (or an error message will
+* After about 10 seconds, a browser will open (or an error message will
 pop up with the URL to use, which depends on the options given, but
 defaults to <http://127.0.0.1:7991/>).
 
@@ -43,20 +44,18 @@ potential error messages, e.g., if you break the markdown in some way.
 ### There can only be one (per host/port)
 
 There can only be one kdwatch active on each host and port.  You will
-need to specify a different port (or host!) to start more than one
-pkdwatch.
+need to specify a different port (or host!) to run more than one
+kdwatch at the same time.
 
-* `-o host` to select an address on the serving host (default: 127.0.0.1)
-* `-i` as a shortcut for `-o ::`
 * `-p port` to select a port number (default: 7991)
-* `-1` to `6` as a shortcut for `-p 7991` to `-p 7996` (must be last
+* `-1` to `6` as a shortcut for `-p 7991` (default) to `-p 7996` (must be last
   option because of an idiosyncrasy of the optionparser library)
 
 kdwatch has two flags to simplify handling servers that might be
 accumulating on one host/port:
 
 * `-e` to kill (SIGINT) any current holder of the port given and exit
-* `-r` to do this, and to start a new instance
+* `-r` to do this, and to start a new instance as well
 
 So the most likely use is going to be:
 
@@ -64,39 +63,56 @@ So the most likely use is going to be:
 kdwatch -r
 ```
 
+or maybe
+
+```
+kdwatch -r2
+```
+
+for the second draft you are editing at the same time,
+
 or, if your drafts are weirdly named or you need to select one out of
 many
 
 ```
-kdwatch -r weird-draft.md
+kdwatch -r5 weird-draft.md
 ```
 
-### This is a web server
-
-The fun thing with the `-i` option is that you can replace the local
-URL by filling in the hostname of the laptop and use the resulting URL
-on a different browser (e.g., `http://mylaptop.local:7991` on your iPad or
-another laptop), and save some screen real-estate on your laptop.
-
-kdwatch essentially is a web server and, unless used on 127.0.0.1 (or
-::1), is accessible to anyone who can access your laptop over IP.
-
-That may be a security problem -- do not specify non-local hosts
-unless you are not “on the Internet” (or trust the way I cobble
-together software).
-If you did, maybe `kdwatch -e` before going there!
-
-The web-server function may also be a feature -- it even can be used for joint viewing...
+(Glitches are to be expected if you *start* more than one server out of
+the same directory at the same instant; TODO; for now, wait 10 seconds
+before starting another from the same directory.)
 
 ### 7991, haven't I heard that number before?
 
 The default port number was chosen after [RFC 7991], the initial (no
 longer really authoritative) version of the v3 RFCXML specification,
-and the port shortcuts 1 to 6 point to further RFCs from this series.
+and the port shortcuts 1 to 6 point to this and further RFCs from this
+series.
 (7997 is a particularly lame RFC, so it cannot be chosen by a
 shortcut [actually: this port is already registered for something else].)
 
 [RFC 7991]: https://rfc-editor.org/rfc/rfc7991.html
+
+### kdwatch is a web server
+
+kdwatch essentially is a web server and can listen on any host
+interface you might have:
+
+* `-o host` to select an interface address on the serving host (default: 127.0.0.1)
+* `-i` as a shortcut for `-o :: ` (`i` stands for "on the Internet")
+
+Unless used on 127.0.0.1 (or ::1), kdwatch is accessible to anyone who
+can access your laptop over IP.  That may be a security problem -- do
+not specify a non-local interface unless you know you are not “on the
+Internet” (or trust the way I cobble together software).  If you are,
+maybe `kdwatch -e` before going there!
+
+The fun thing with the `-i` option is that you can replace the local
+URL by filling in the hostname of the laptop and use the resulting URL
+on a different browser (e.g., `http://mylaptop.local:7991` on your iPad or
+another laptop), and save some screen real-estate on your laptop.
+With a globally routable address, kdwatch even can be used for joint
+viewing in a team.
 
 ## Feedback, please
 
