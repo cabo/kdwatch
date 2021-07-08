@@ -41,7 +41,7 @@ get "/rfc-local.css" do
 end
 
 File.write(".Guardfile", <<GF)
-guard 'livereload' do
+guard :livereload, :port => #{ENV["KDWATCH_LRPORT"]} do
   watch("#{sfn}")
 end
 GF

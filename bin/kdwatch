@@ -117,10 +117,12 @@ end
 ENV["KDWATCH_SRC"] = ARGV[0]
 ENV["KDWATCH_HOST"] = options.host
 ENV["KDWATCH_PORT"] = options.port.to_s
+live_reload_port = options.port + 51234 # move up into ephemeral space
+ENV["KDWATCH_LRPORT"] = live_reload_port.to_s
 
 File.write(".config.ru", <<HERE)
 require 'rack-livereload'
-use Rack::LiveReload, min_delay: 500, source: :vendored, no_swf: true
+use Rack::LiveReload, min_delay: 500, source: :vendored, no_swf: true, port: #{live_reload_port}, live_reload_port: #{live_reload_port}
 require 'kdwatch-app.rb'
 run Sinatra::Application
 HERE
