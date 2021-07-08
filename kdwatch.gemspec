@@ -28,6 +28,7 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency "bundler", '~> 2.2'
   spec.add_dependency "thin", '~> 1.8'
+  # spec.add_dependency "cabo-guard-livereload", '~> 2.5' #, require: false
   spec.add_dependency "guard-livereload", '~> 2.5' #, require: false
   spec.add_dependency "rack-livereload", '~> 0.3'
   spec.add_dependency "guard", '~> 2.17'

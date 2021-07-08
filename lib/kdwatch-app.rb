@@ -51,7 +51,7 @@ spawn("guard -G .Guardfile", in: rd, close_others: true)
 
 # wrong: puts settings.port
 
-host = "::1" if host == "::" # work around macOS peculiarity
+host = "localhost" if host == "::" # work around macOS peculiarity
 host = "[#{host}]" if host =~ /:/
 
 url = "http://#{host}:#{port}"
