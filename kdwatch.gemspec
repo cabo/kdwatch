@@ -33,6 +33,6 @@ Gem::Specification.new do |spec|
   spec.add_dependency "rack-livereload", '~> 0.3'
   spec.add_dependency "guard", '~> 2.17'
   spec.add_dependency "sinatra", '~> 2.1'
-  spec.add_dependency "kramdown-rfc2629", '~> 1.4'
+  spec.add_dependency "kramdown-rfc2629", '~> 1.5'
   spec.add_dependency "net-http-persistent", '~> 4.0'
 end

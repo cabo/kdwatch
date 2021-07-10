@@ -9,6 +9,8 @@ require "rack-livereload"
 require "guard"
 require "sinatra"
 require "kramdown-rfc2629"
+ENV["KDRFC_PREPEND"] = "time"
+require "kramdown-rfc/kdrfc-processor"
 require "net/http/persistent"
 
 host = ENV["KDWATCH_HOST"]
@@ -21,13 +23,22 @@ dfn = File.join(File.dirname(sfn), "#{File.basename(sfn, ".*")}.html")
 
 puts dfn
 
+kdrfc = KramdownRFC::KDRFC.new
+kdrfc.options.v3 = true
+kdrfc.options.html = true
+
 get "/" do
   sfc = File.stat(sfn).ctime
   dfc = File.stat(dfn).ctime rescue Time.at(0)
   if sfc > dfc
     warn "Rebuilding..."
-    system("time kdrfc -3h --no-txt #{sfn}")
-    warn "...done"
+    begin
+      kdrfc.process sfn
+    rescue StandardError => e
+      warn e.to_s
+    else
+      warn "...done"
+    end
   end
   File.read(dfn)
 end
