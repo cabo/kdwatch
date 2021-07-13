@@ -1,6 +1,6 @@
 # Kdwatch
 
-Autoreloading display of [kramdown-rfc][] document in browser
+Auto-formatting, auto-reloading display of formatted [kramdown-rfc][] document in browser
 
 [kramdown-rfc]: http://rfc.space
 
@@ -14,11 +14,11 @@ $ gem install kdwatch
 
 * For some reason, the initial `gem install` takes a couple of minutes,
   during the first few of which it may seem nothing happens.
-* If the above `pip3` doesn't work, no problem: in a pinch, kdrfc will
-  use the IETF web service for xml2rfc processing (but that may be a
-  bit slower).
-* Depending on system configuration, add `sudo` (but don't if it isn't
-  actually needed).
+* If the above `pip3` (or `pip`) doesn't work, no problem: in a pinch,
+  kdrfc will use the IETF web service for xml2rfc processing (but that
+  may be a bit slower).
+* Depending on system configuration, add `sudo` on the pip/gem
+  commands (but don't if it isn't actually needed).
 
 ## Usage
 
@@ -34,12 +34,16 @@ $ kdwatch
 pop up with the URL to use, which depends on the options given, but
 defaults to <http://127.0.0.1:7991/>).
 
-Now, whenever you do an editor save of the markdown file, after a
-couple of seconds (1.6 s for my Intel Mac, 0.8 s for my M1 Mac) you
-see an updated HTML in the browser.
+Now, whenever you do an editor save of the kramdown-rfc markdown file,
+kdwatch auto-formats and, after a couple of seconds(*), you see an
+updated HTML in the browser without pressing buttons or switching windows.
 
 You will need to keep the `kdwatch` terminal/screen open to see
 potential error messages, e.g., if you break the markdown in some way.
+(The author uses an Emacs "Async Shell Command" buffer for that.)
+
+(*) The latency depends on your computer and a bit on the size of the
+    file, say, around 1.6 s for my Intel Mac, 0.8 s for my M1 Mac.
 
 ### There can only be one (per host/port)
 
