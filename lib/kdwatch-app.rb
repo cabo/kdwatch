@@ -40,7 +40,18 @@ get "/" do
       warn "...done"
     end
   end
-  File.read(dfn)
+  dfc = File.stat(dfn).ctime rescue Time.at(0)
+  ret = File.read(dfn)
+  if sfc > dfc # somehow the above went wrong
+    ret.gsub!(<<CSS, <<RED)
+/* general and mobile first */
+html {
+CSS
+/* general and mobile first */
+html { border: 5px solid red;
+RED
+  end
+  ret
 end
 
 get "/metadata.min.js" do
