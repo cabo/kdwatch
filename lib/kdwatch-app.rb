@@ -9,7 +9,7 @@ require "rack-livereload"
 require "guard"
 require "sinatra"
 require "kramdown-rfc2629"
-ENV["KDRFC_PREPEND"] = "time"
+ENV["KDRFC_PREPEND"] = "time" if system("time", "true", err: "/dev/null")
 require "kramdown-rfc/kdrfc-processor"
 require "net/http/persistent"
 
