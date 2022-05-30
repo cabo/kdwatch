@@ -6,10 +6,23 @@ ENV["KRAMDOWN_PERSISTENT"]="yes"
 
 require 'optparse'
 require 'ostruct'
+require 'socket'
 
 require_relative "../lib/kdwatch/version"
 
 KDWATCH_PORT = 7991             # currently unregistered...
+
+def socket_is_free(host, port, uri)
+  begin
+    TCPSocket.new(host, port, connect_timeout: 1)
+  rescue Errno::ECONNREFUSED => e
+    return true
+  rescue => e
+    warn "*** #{uri} -- #{e.inspect}"
+    return nil                  # break, but don't use
+  end
+  return false
+end
 
 options = OpenStruct.new
 
@@ -30,7 +43,7 @@ BANNER
   opts.on("-r", "--[no-]replace", "Replace existing server")
   opts.on("-oNAME", "--host=NAME", String, "Server host (127.0.0.1)")
   opts.on("-i", "--internet", 'Abbr. "on the Internet" (host = "::")')
-  opts.on("-pNUM", "--port=NUM", Integer, "Port number (#{KDWATCH_PORT})")
+  opts.on("-pNUM", "--port=NUM", Integer, "Port number (#{KDWATCH_PORT}...)")
   opts.on("-[1-6]", "--[1-6]", Integer, "Abbr. port number (#{KDWATCH_PORT/10}x), must be last")
 end
 begin
@@ -52,7 +65,26 @@ if short_port = options[""]
   warn "** overriding port #{options.port} with #{port}" if options.port
   options.port = port
 else
-  options.port ||= KDWATCH_PORT
+  unless options.port
+    port = KDWATCH_PORT
+    host = options.host
+    host = "[#{host}]" if host =~ /:/
+    uri = nil
+    found = false
+    100.times do
+      uri = "http://#{host}:#{port}"
+      # warn "Trying URI #{uri}"
+      found = socket_is_free(options.host, port, uri)
+      break unless found == false
+      port += 1
+    end
+    unless found
+      warn "*** Cannot find port number available to serve from!"
+      exit 1
+    end
+    warn "*** Using URI: #{uri}"
+    options.port = port
+  end
 end
 
 # p options
