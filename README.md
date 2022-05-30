@@ -51,9 +51,11 @@ There can only be one kdwatch active on each host and port.  You will
 need to specify a different port (or host!) to run more than one
 kdwatch at the same time.
 
-* `-p port` to select a port number (default: 7991)
-* `-1` to `6` as a shortcut for `-p 7991` (default) to `-p 7996` (must be last
+* `-p port` to select a specific port number
+* `-1` to `6` as a shortcut for `-p 7991` to `-p 7996` (must be last
   option because of an idiosyncrasy of the optionparser library)
+* if no port number is given, `kdwatch` will hunt for a port number
+  that doesn't have a listener, starting with 7991.
 
 kdwatch has two flags to simplify handling servers that might be
 accumulating on one host/port:
@@ -64,18 +66,19 @@ accumulating on one host/port:
 So the most likely use is going to be:
 
 ```
-kdwatch -r
+kdwatch
 ```
 
-or maybe
+to start a new server on a new port number.
+
+These tend to accumulate a bit, so sometimes you'll want to replace an
+existing one (here: port number 7992):
 
 ```
 kdwatch -r2
 ```
 
-for the second draft you are editing at the same time,
-
-or, if your drafts are weirdly named or you need to select one out of
+If your drafts are weirdly named or you need to select one out of
 many
 
 ```
