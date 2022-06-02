@@ -23,10 +23,10 @@ BANNER
     puts opts
     exit
   end
-  opts.on("-fNUM", "--from=NUM", Integer, "Search from port number") do |v|
+  opts.on("-fNUM", "--from=NUM", Integer, "Search from port number (#{loport})") do |v|
     loport = v
   end
-  opts.on("-tNUM", "--to=NUM", Integer, "Search to port number") do |v|
+  opts.on("-tNUM", "--to=NUM", Integer, "Search to port number (#{hiport})") do |v|
     hiport = v
   end
 end
