@@ -121,6 +121,35 @@ another laptop), and save some screen real-estate on your laptop.
 With a globally routable address, kdwatch even can be used for joint
 viewing in a team.
 
+### Finding and accessing kdwatch servers
+
+The `kds` tool can list active local (127.0.0.1) kdwatch servers and
+optionally quickly open the page for a selected kdwatch server.
+
+```
+Usage: kds [options] [match...]
+Version: n.m.l (from kdwatch)
+    -v, --version                    Show version and exit
+    -h, --help                       Show option summary and exit
+    -f, --from=NUM                   Search from port number (7991)
+    -t, --to=NUM                     Search to port number (7999)
+```
+
+```
+$ kds
+http://127.0.0.1:7991  Packed CBOR
+http://127.0.0.1:7992  Concise Problem Details For CoAP APIs
+$ kds prob
+http://127.0.0.1:7991  Packed CBOR
+http://127.0.0.1:7992  Concise Problem Details For CoAP APIs
+(...web page http://127.0.0.1:7992 opens...)
+$
+```
+
+Any match arguments are concatenated with spaces; for servers that
+offer a page with the match string in the title (case insensitive), a
+window is opened in the default browser.
+
 ## Feedback, please
 
 This has only been tested on macOS and briefly on Linux.  No idea about WSL.
