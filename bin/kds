@@ -1,0 +1,54 @@
+#!/usr/bin/env ruby
+require 'socket'
+require 'uri'
+require 'open-uri'
+require 'optparse'
+
+KDWATCH_VERSION=Gem.loaded_specs["kdwatch"].version rescue "unknown-version"
+
+loport = 7991
+hiport = 7999
+match = nil
+
+op = OptionParser.new do |opts|
+  opts.banner = <<BANNER
+Usage: kds [options] [match...]
+Version: #{KDWATCH_VERSION} (from kdwatch)
+BANNER
+  opts.on("-v", "--version", "Show version and exit") do |v|
+    puts "kds, from kdwatch #{KDWATCH_VERSION}"
+    exit
+  end
+  opts.on("-h", "--help", "Show option summary and exit") do |v|
+    puts opts
+    exit
+  end
+  opts.on("-fNUM", "--from=NUM", Integer, "Search from port number") do |v|
+    loport = v
+  end
+  opts.on("-tNUM", "--to=NUM", Integer, "Search to port number") do |v|
+    hiport = v
+  end
+end
+op.parse!
+
+if ARGV.size != 0
+  match = ARGV.join(" ")
+end
+
+(loport..hiport).each do |p|
+  url = "http://127.0.0.1:#{p}"
+  URI(url).open do |f|
+    s = f.readpartial(40000)
+    sc = s.scan(/id="title".*?<|Internal server error/)
+    sc.each do |scl|
+      scl.sub!(/id="title">/, "")
+      scl.chomp!('<')
+      puts "#{url}  #{scl}"
+      if match && scl.downcase.include?(match.downcase)
+        spawn("open #{url} || xdg-open #{url} || echo @@@ Please open #{url}")
+      end
+      break
+    end
+  end rescue nil
+end
