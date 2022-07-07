@@ -13,6 +13,7 @@ require_relative "../lib/kdwatch/version"
 KDWATCH_PORT = 7991             # currently unregistered...
 
 def socket_is_free(host, port, uri)
+  host = "localhost" if host == "::"
   begin
     TCPSocket.new(host, port, connect_timeout: 1)
   rescue Errno::ECONNREFUSED => e
