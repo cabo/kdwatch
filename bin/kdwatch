@@ -7,6 +7,7 @@ ENV["KRAMDOWN_PERSISTENT"]="yes"
 require 'optparse'
 require 'ostruct'
 require 'socket'
+require 'tempfile'
 
 require_relative "../lib/kdwatch/version"
 
@@ -153,11 +154,19 @@ ENV["KDWATCH_PORT"] = options.port.to_s
 live_reload_port = options.port + 51234 # move up into ephemeral space
 ENV["KDWATCH_LRPORT"] = live_reload_port.to_s
 
-File.write(".config.ru", <<HERE)
+tf = Tempfile.new('kdwatch-config-ru-')
+path = tf.path
+rupath = "#{path}.ru"
+
+tf.write(<<HERE)
 require 'rack-livereload'
 use Rack::LiveReload, min_delay: 500, source: :vendored, no_swf: true, port: #{live_reload_port}, live_reload_port: #{live_reload_port}
 require 'kdwatch-app.rb'
 run Sinatra::Application
+File.delete("#{rupath}")
 HERE
 
-exec("rackup -E production -s thin -o #{options.host} -p #{options.port} .config.ru")
+tf.close
+File.rename(path, rupath)
+
+exec("rackup -E production -s thin -o #{options.host} -p #{options.port} #{rupath}")
