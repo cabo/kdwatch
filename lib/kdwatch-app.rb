@@ -1,5 +1,6 @@
 require_relative "kdwatch/version"
 require 'bundler'
+require 'tempfile'
 
 # Bundler.require
 require "bundler"
@@ -62,14 +63,17 @@ get "/rfc-local.css" do
   # insert local css here
 end
 
-File.write(".Guardfile", <<GF)
+guardfile = Tempfile.new("kdwatch-guard-")
+guardfile.write(<<GF)
 guard :livereload, :port => #{ENV["KDWATCH_LRPORT"]} do
   watch("#{sfn}")
 end
 GF
+guardfile.close
+gfpath = guardfile.path
 
 rd, _wr = IO.pipe
-spawn("guard -G .Guardfile", in: rd, close_others: true)
+spawn("guard -G #{gfpath}", in: rd, close_others: true)
 
 # wrong: puts settings.port
 
