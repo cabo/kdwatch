@@ -85,10 +85,6 @@ many
 kdwatch -r5 weird-draft.md
 ```
 
-(Glitches are to be expected if you *start* more than one server out of
-the same directory at the same instant; TODO; for now, wait 10 seconds
-before starting another from the same directory.)
-
 ### 7991, haven't I heard that number before?
 
 The default port number was chosen after [RFC 7991], the initial (no
