@@ -81,7 +81,22 @@ host = "localhost" if host == "::" # work around macOS peculiarity
 host = "[#{host}]" if host =~ /:/
 
 url = "http://#{host}:#{port}"
+command = "open #{url} || xdg-open #{url} || echo @@@ Please open #{url}"
 
-spawn("sleep 5; open #{url} || xdg-open #{url} || echo @@@ Please open #{url}")
-
-
+if Process.respond_to?(:fork) && fork do
+     begin
+       # warn "** Making connection to #{host} #{port}"
+       TCPSocket.new host, port
+       # warn "** Successful connection to #{host} #{port}"
+     rescue => _e
+       # warn "** #{e.detailed_message}"
+       sleep 0.5
+       retry
+     end
+     exec(command)
+     warn "** exec didn't work"
+     exit!
+   end
+else
+  spawn("sleep 3; #{command}")
+end
