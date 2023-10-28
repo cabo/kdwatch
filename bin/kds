@@ -3,12 +3,14 @@ require 'socket'
 require 'uri'
 require 'open-uri'
 require 'optparse'
+require 'optparse/uri'
 
 KDWATCH_VERSION=Gem.loaded_specs["kdwatch"].version rescue "unknown-version"
 
 loport = 7991
 hiport = 7999
 match = nil
+uri = URI.parse("http://127.0.0.1")
 
 op = OptionParser.new do |opts|
   opts.banner = <<BANNER
@@ -23,11 +25,20 @@ BANNER
     puts opts
     exit
   end
+  opts.on("-uURI", "--uri=URI", URI, "Use base URI (#{uri})") do |v|
+    uri = v
+    unless uri.host           # questionable convenience feature
+      uri.host = uri.path #.sub(/\A([A-Za-z0-9:]+)\z/) {"[#{$1}]"}
+      uri.path = ""
+    end
+    uri.scheme ||= "http"
+  end
   opts.on("-fNUM", "--from=NUM", Integer, "Search from port number (#{loport})") do |v|
     loport = v
   end
   opts.on("-tNUM", "--to=NUM", Integer, "Search to port number (#{hiport})") do |v|
     hiport = v
+    hiport += 8000 if hiport < loport # questionable convenience feature
   end
 end
 op.parse!
@@ -37,7 +48,8 @@ if ARGV.size != 0
 end
 
 (loport..hiport).each do |p|
-  url = "http://127.0.0.1:#{p}"
+  uri.port = p
+  url = uri.to_s
   URI(url).open do |f|
     s = f.readpartial(40000)
     sc = s.scan(/id="title".*?<|Internal server error/)
