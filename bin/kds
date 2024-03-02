@@ -50,6 +50,7 @@ end
 (loport..hiport).each do |p|
   uri.port = p
   url = uri.to_s
+  print "#{p}\r" if $stdout.tty?
   URI(url).open do |f|
     s = f.readpartial(40000)
     sc = s.scan(/id="title".*?<|Internal server error/)
