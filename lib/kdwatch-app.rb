@@ -55,6 +55,13 @@ RED
   ret
 end
 
+get "/favicon.ico" do
+  port_num = port.to_i % 10
+  fn = File.expand_path "../../data/#{port_num}.ico", __FILE__
+  warn "** fn #{fn}"
+  send_file fn
+end
+
 get "/metadata.min.js" do
   # insert reload script here!
 end
