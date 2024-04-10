@@ -34,7 +34,7 @@ Usage: kdwatch [options] draft-foo.md|.mkd|.xml
 Version: #{Kdwatch::VERSION}
 BANNER
   opts.on("-V", "--version", "Show version and exit") do |v|
-    puts "kdwatch #{Kdwatch::Version}"
+    puts "kdwatch #{Kdwatch::VERSION}"
     exit
   end
   opts.on("-H", "--help", "Show option summary and exit") do |v|
