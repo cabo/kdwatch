@@ -43,6 +43,13 @@ get "/" do
   end
   dfc = File.stat(dfn).ctime rescue Time.at(0)
   ret = File.read(dfn)
+  ret.sub!(<<TOC, <<ANNOTOC)
+<a href="#name-table-of-contents" class="section-name selfRef">Table of Contents</a>
+TOC
+<a href="#name-table-of-contents" class="section-name selfRef"><span style="color: red; font-weight: bold; font-size: 120%;">#{
+dfc.strftime('%T')
+}</span> Table of Contents</a>
+ANNOTOC
   if sfc > dfc # somehow the above went wrong
     ret.gsub!(<<CSS, <<RED)
 /* general and mobile first */
