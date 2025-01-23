@@ -46,9 +46,14 @@ get "/" do
   ret.sub!(<<TOC, <<ANNOTOC)
 <a href="#name-table-of-contents" class="section-name selfRef">Table of Contents</a>
 TOC
-<a href="#name-table-of-contents" class="section-name selfRef"><span style="color: red; font-weight: bold; font-size: 120%;">#{
+<a href="#name-table-of-contents" class="section-name selfRef" style="white-space: nowrap; min-width: 290px;"><span style="color: red; font-weight: bold; font-size: 120%;">#{
 dfc.strftime('%T')
-}</span> Table of Contents</a>
+}</span> Table of Contents</a>
+ANNOTOC
+  ret.sub!(<<TOC, <<ANNOTOC)
+    left: -164px;
+TOC
+    left: -264px;
 ANNOTOC
   if sfc > dfc # somehow the above went wrong
     ret.gsub!(<<CSS, <<RED)
